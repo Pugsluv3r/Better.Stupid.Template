@@ -78,6 +78,7 @@ namespace StupidTemplate.Mods
             {
                 var GunData = RenderGun();
                 GameObject NewPointer = GunData.NewPointer;
+                NewPointer.name = "GunPointer";
 
                 if (ControllerInputPoller.TriggerFloat(XRNode.RightHand) > 0.5f && !previousTeleportTrigger)
                 {

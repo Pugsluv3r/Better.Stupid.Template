@@ -17,6 +17,9 @@ namespace StupidTemplate.Menu
          * 
          * Togglable Mod:
          *   new ButtonInfo { buttonText = "Platforms", method =() => Movement.Platforms(), toolTip = "Spawns platforms on your hands when pressing grip."},
+         *   
+         * Making mods enabled by default:
+         *  new ButtonInfo { buttonText = "Gunlib Fix", method =() => currentCategory = 0, isTogglable = true, toolTip = "Fixes issue With IItemp Gunlib not disabling", enabled = true },
          */
 
         public static ButtonInfo[][] buttons = new ButtonInfo[][]
@@ -27,6 +30,7 @@ namespace StupidTemplate.Menu
                 new ButtonInfo { buttonText = "Room Mods", method =() => currentCategory = 4, isTogglable = false, toolTip = "Opens the room mods tab."},
                 new ButtonInfo { buttonText = "Movement Mods", method =() => currentCategory = 5, isTogglable = false, toolTip = "Opens the movement mods tab."},
                 new ButtonInfo { buttonText = "Safety Mods", method =() => currentCategory = 6, isTogglable = false, toolTip = "Opens the safety mods tab."},
+                new ButtonInfo { buttonText = "Other Mods", method =() => currentCategory = 7, isTogglable = false, toolTip = "Opens the other mods tab."},
             },
 
             new ButtonInfo[] { // Settings [1]
@@ -66,7 +70,11 @@ namespace StupidTemplate.Menu
             new ButtonInfo[] { // Safety Mods [6]
                 new ButtonInfo { buttonText = "Return to Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns to the main page of the menu."},
 
-                new ButtonInfo { buttonText = "Anti Report", method =() => Safety.AntiReportDisconnect(), toolTip = "Disconnects you when someone tries to report you."},
+                new ButtonInfo { buttonText = "Anti Report", method =() => Safety.AntiReportDisconnect(), toolTip = "Disconnects you when someone tries to report you."}, // all roads lead to report bans
+            },
+            new ButtonInfo[] { // Other [7]
+                new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
+                new ButtonInfo { buttonText = "Gunlib Fix", method =() => currentCategory = 0, isTogglable = true, toolTip = "Fixes issue With IItemp Gunlib not disabling", enabled = true },
             },
         };
     }
