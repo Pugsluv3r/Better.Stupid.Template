@@ -11,7 +11,7 @@ namespace StupidTemplate.Mods
 {
     public class Safety
     {
-        public static VRRig reportRig;
+        public static VRRig reportRig; 
         public static void AntiReport(System.Action<VRRig, Vector3> onReport)
         {
             if (!NetworkSystem.Instance.InRoom) return;
