@@ -30,6 +30,9 @@ namespace StupidTemplate.Menu
                 new ButtonInfo { buttonText = "Room Mods", method =() => currentCategory = 4, isTogglable = false, toolTip = "Opens the room mods tab."},
                 new ButtonInfo { buttonText = "Movement Mods", method =() => currentCategory = 5, isTogglable = false, toolTip = "Opens the movement mods tab."},
                 new ButtonInfo { buttonText = "Safety Mods", method =() => currentCategory = 6, isTogglable = false, toolTip = "Opens the safety mods tab."},
+                new ButtonInfo { buttonText = "Visual Mods", method =() => currentCategory = 8, isTogglable = false, toolTip = "Opens the visual mods tab."},
+                new ButtonInfo { buttonText = "Overpowered Mods", method =() => currentCategory = 9, isTogglable = false, toolTip = "Opens the overpowered mods tab."},
+                new ButtonInfo { buttonText = "Advantage Mods", method =() => currentCategory = 10, isTogglable = false, toolTip = "Opens the advantage mods tab."},
                 new ButtonInfo { buttonText = "Other Mods", method =() => currentCategory = 7, isTogglable = false, toolTip = "Opens the other mods tab."},
             },
 
@@ -65,6 +68,7 @@ namespace StupidTemplate.Menu
                 new ButtonInfo { buttonText = "Platforms", method =() => Movement.Platforms(), toolTip = "Spawns platforms on your hands when pressing grip."},
                 new ButtonInfo { buttonText = "Fly", method =() => Movement.Fly(), toolTip = "Sends you forward when holding A."},
                 new ButtonInfo { buttonText = "Teleport Gun", method =() => Movement.TeleportGun(), toolTip = "Teleports you to wherever your pointer is when pressing trigger."},
+                new ButtonInfo { buttonText = "WASD fly", method =() => Movement.WASDFly(), toolTip = "Allows you to fly with WASD"}
             },
 
             new ButtonInfo[] { // Safety Mods [6]
@@ -75,6 +79,15 @@ namespace StupidTemplate.Menu
             new ButtonInfo[] { // Other [7]
                 new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
                 new ButtonInfo { buttonText = "Gunlib Fix", method =() => currentCategory = 0, isTogglable = true, toolTip = "Fixes issue With IItemp Gunlib not disabling", enabled = true },
+            },
+            new ButtonInfo[] { // Visual Mods [8]
+                new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
+            },
+            new ButtonInfo[] { // Overpowered Mods [9]
+                new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
+            },
+            new ButtonInfo[] { //Advantage Mods [10]
+                new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
             },
         };
     }
