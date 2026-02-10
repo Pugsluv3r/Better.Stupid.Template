@@ -76,6 +76,7 @@ namespace StupidTemplate.Menu
 
                 new ButtonInfo { buttonText = "Anti Report", method =() => Safety.AntiReportDisconnect(), toolTip = "Disconnects you when someone tries to report you."}, // all roads lead to report bans
             },
+
             new ButtonInfo[] { // Other [7]
                 new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
                 new ButtonInfo { buttonText = "Gunlib Fix", method =() => currentCategory = 0, isTogglable = true, toolTip = "Fixes issue With IItemp Gunlib not disabling", enabled = true },
@@ -83,9 +84,11 @@ namespace StupidTemplate.Menu
             new ButtonInfo[] { // Visual Mods [8]
                 new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
             },
+
             new ButtonInfo[] { // Overpowered Mods [9]
                 new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
             },
+
             new ButtonInfo[] { //Advantage Mods [10]
                 new ButtonInfo { buttonText = "Return To Main", method =() => currentCategory = 0, isTogglable = false, toolTip = "Returns you to the main page of the menu."},
             },
