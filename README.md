@@ -10,7 +10,7 @@ No, this template is free and public for anyone to use. You are welcome to utili
 
 # Installation
 
-- Download the source code from [here](https://github.com/Pugsluv3r/Better.Stupid.Template/releases/tag/1.0.0)
+- Download the source code from [here](https://github.com/Pugsluv3r/Better.Stupid.Template/releases/latest)
 - Change your `<GamePath>` (Gorilla Tag directory) in `Directory.Build.props` if required
 - Change the menu name in `PluginInfo.cs`
 - Edit the menu visuals in `Menu/Settings.cs`
