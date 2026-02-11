@@ -69,8 +69,6 @@ namespace StupidTemplate.Classes
 
         public static Color GetPlayerColor(VRRig Player)
         {
-            if (Player.bodyRenderer.cosmeticBodyType == GorillaBodyType.Skeleton)
-                return Color.green;
 
             switch (Player.setMatIndex)
             {
