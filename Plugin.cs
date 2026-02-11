@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using UnityEngine;
 
 namespace StupidTemplate
 {
@@ -11,5 +12,10 @@ namespace StupidTemplate
 
         public void OnPlayerSpawned() =>
             Patches.PatchHandler.PatchAll();
+
+        void Start()
+        {
+            Debug.Log("Loaded:" +PluginInfo.Name + "Version" + PluginInfo.Version);
+        }
     }
 }

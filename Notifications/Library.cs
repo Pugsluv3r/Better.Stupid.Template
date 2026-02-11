@@ -116,7 +116,7 @@ namespace StupidTemplate.Notifications
 
         public static void ClearAllNotifications()
         {
-            //NotifiLib.NotifiText.text = "<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> <color=white>Notifications cleared.</color>" + Environment.NewLine;
+            //NotifiLib.NotifiText.text = "<color=grey>[</color><color=green>☑</color><color=grey>]</color> <color=white>Cleared</color>" + Environment.NewLine;
             NotifiText.text = "";
         }
 
