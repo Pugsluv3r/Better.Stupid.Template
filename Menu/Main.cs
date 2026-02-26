@@ -37,271 +37,296 @@ namespace StupidTemplate.Menu
         public static void Prefix()
         {
             // Initialize Menu
-                try
-                {
-                    bool toOpen = (!rightHanded && ControllerInputPoller.instance.leftControllerSecondaryButton) || (rightHanded && ControllerInputPoller.instance.rightControllerSecondaryButton);
-                    bool keyboardOpen = UnityInput.Current.GetKey(keyboardButton);
+            try
+            {
+                bool toOpen = (!rightHanded && ControllerInputPoller.instance.leftControllerSecondaryButton) || (rightHanded && ControllerInputPoller.instance.rightControllerSecondaryButton);
+                bool keyboardOpen = UnityInput.Current.GetKey(keyboardButton);
 
-                    if (menu == null)
+                if (menu == null)
+                {
+                    if (toOpen || keyboardOpen)
                     {
-                        if (toOpen || keyboardOpen)
-                        {
-                            CreateMenu();
-                            RecenterMenu(rightHanded, keyboardOpen);
-                            if (reference == null)
-                                CreateReference(rightHanded);
-                        }
+                        CreateMenu();
+                        RecenterMenu(rightHanded, keyboardOpen);
+                        if (reference == null)
+                            CreateReference(rightHanded);
                     }
+                }
+                else
+                {
+                    if (toOpen || keyboardOpen)
+                        RecenterMenu(rightHanded, keyboardOpen);
                     else
                     {
-                        if (toOpen || keyboardOpen)
-                            RecenterMenu(rightHanded, keyboardOpen);
-                        else
-                        {
-                            GameObject.Find("Shoulder Camera").transform.Find("CM vcam1").gameObject.SetActive(true);
+                        GameObject.Find("Shoulder Camera").transform.Find("CM vcam1").gameObject.SetActive(true);
 
-                            Rigidbody comp = menu.AddComponent(typeof(Rigidbody)) as Rigidbody;
-                            comp.linearVelocity = (rightHanded ? GTPlayer.Instance.LeftHand.velocityTracker : GTPlayer.Instance.RightHand.velocityTracker).GetAverageVelocity(true, 0);
+                        Rigidbody comp = menu.AddComponent(typeof(Rigidbody)) as Rigidbody;
+                        comp.linearVelocity = (rightHanded ? GTPlayer.Instance.LeftHand.velocityTracker : GTPlayer.Instance.RightHand.velocityTracker).GetAverageVelocity(true, 0);
 
-                            Destroy(menu, 2f);
-                            menu = null;
+                        Destroy(menu, 2f);
+                        menu = null;
 
-                            Destroy(reference);
-                            reference = null;
-                        }
+                        Destroy(reference);
+                        reference = null;
                     }
                 }
-                catch (Exception exc)
+            }
+            catch (Exception exc)
+            {
+                Debug.LogError(string.Format("{0} // Error initializing at {1}: {2}", PluginInfo.Name, exc.StackTrace, exc.Message));
+            }
+
+            // Cleanup Gun
+            try
+            {
+                if (GunPointer != null)
                 {
-                    Debug.LogError(string.Format("{0} // Error initializing at {1}: {2}", PluginInfo.Name, exc.StackTrace, exc.Message));
+                    if (!GunPointer.activeSelf)
+                        Destroy(GunPointer);
+                    else
+                        GunPointer.SetActive(false);
                 }
+
+                if (GunLine != null)
+                {
+                    if (!GunLine.gameObject.activeSelf)
+                    {
+                        Destroy(GunLine.gameObject);
+                        GunLine = null;
+                    }
+                    else
+                        GunLine.gameObject.SetActive(false);
+                }
+            }
+            catch { }
 
             // Constant
-                try
-                {
-                    // Pre-Execution
-                        if (fpsObject != null)
-                            fpsObject.text = "FPS: " + Mathf.Ceil(1f / Time.unscaledDeltaTime).ToString();
+            try
+            {
+                // Pre-Execution
+                if (fpsObject != null)
+                    fpsObject.text = "FPS: " + Mathf.Ceil(1f / Time.unscaledDeltaTime).ToString();
 
-                    // Execute Enabled Mods
-                        foreach (ButtonInfo button in buttons
-                            .SelectMany(list => list)
-                            .Where(button => button.enabled && button.method != null))
-                        {
-                            try
-                            {
-                                button.method.Invoke();
-                            }
-                            catch (Exception exc)
-                            {
-                                Debug.LogError(string.Format("{0} // Error with mod {1} at {2}: {3}", PluginInfo.Name, button.buttonText, exc.StackTrace, exc.Message));
-                            }
-                        }
-                } catch (Exception exc)
+                // Execute Enabled Mods
+                foreach (ButtonInfo button in buttons
+                    .SelectMany(list => list)
+                    .Where(button => button.enabled && button.method != null))
                 {
-                    Debug.LogError(string.Format("{0} // Error with executing mods at {1}: {2}", PluginInfo.Name, exc.StackTrace, exc.Message));
+                    try
+                    {
+                        button.method.Invoke();
+                    }
+                    catch (Exception exc)
+                    {
+                        Debug.LogError(string.Format("{0} // Error with mod {1} at {2}: {3}", PluginInfo.Name, button.buttonText, exc.StackTrace, exc.Message));
+                    }
                 }
+            }
+            catch (Exception exc)
+            {
+                Debug.LogError(string.Format("{0} // Error with executing mods at {1}: {2}", PluginInfo.Name, exc.StackTrace, exc.Message));
+            }
         }
 
         // Functions
         public static void CreateMenu()
         {
             // Menu Holder
-                menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Destroy(menu.GetComponent<Rigidbody>());
-                Destroy(menu.GetComponent<BoxCollider>());
-                Destroy(menu.GetComponent<Renderer>());
-                menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
+            menu = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Destroy(menu.GetComponent<Rigidbody>());
+            Destroy(menu.GetComponent<BoxCollider>());
+            Destroy(menu.GetComponent<Renderer>());
+            menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
 
             // Menu Background
-                menuBackground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Destroy(menuBackground.GetComponent<Rigidbody>());
-                Destroy(menuBackground.GetComponent<BoxCollider>());
-                menuBackground.transform.parent = menu.transform;
-                menuBackground.transform.rotation = Quaternion.identity;
-                menuBackground.transform.localScale = menuSize;
-                menuBackground.GetComponent<Renderer>().material.color = backgroundColor.colors[0].color;
-                menuBackground.transform.position = new Vector3(0.05f, 0f, 0f);
+            menuBackground = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Destroy(menuBackground.GetComponent<Rigidbody>());
+            Destroy(menuBackground.GetComponent<BoxCollider>());
+            menuBackground.transform.parent = menu.transform;
+            menuBackground.transform.rotation = Quaternion.identity;
+            menuBackground.transform.localScale = menuSize;
+            menuBackground.GetComponent<Renderer>().material.color = backgroundColor.colors[0].color;
+            menuBackground.transform.position = new Vector3(0.05f, 0f, 0f);
 
-                ColorChanger colorChanger = menuBackground.AddComponent<ColorChanger>();
-                colorChanger.colors = backgroundColor;
+            ColorChanger colorChanger = menuBackground.AddComponent<ColorChanger>();
+            colorChanger.colors = backgroundColor;
 
             // Canvas
-                canvasObject = new GameObject();
-                canvasObject.transform.parent = menu.transform;
-                Canvas canvas = canvasObject.AddComponent<Canvas>();
-                CanvasScaler canvasScaler = canvasObject.AddComponent<CanvasScaler>();
-                canvasObject.AddComponent<GraphicRaycaster>();
-                canvas.renderMode = RenderMode.WorldSpace;
-                canvasScaler.dynamicPixelsPerUnit = 1000f;
+            canvasObject = new GameObject();
+            canvasObject.transform.parent = menu.transform;
+            Canvas canvas = canvasObject.AddComponent<Canvas>();
+            CanvasScaler canvasScaler = canvasObject.AddComponent<CanvasScaler>();
+            canvasObject.AddComponent<GraphicRaycaster>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvasScaler.dynamicPixelsPerUnit = 1000f;
 
             // Title and FPS
-                Text text = new GameObject
-                {
-                    transform =
+            Text text = new GameObject
+            {
+                transform =
                     {
                         parent = canvasObject.transform
                     }
-                }.AddComponent<Text>();
-                text.font = currentFont;
-                text.text = PluginInfo.Name + " <color=grey>[</color><color=white>" + (pageNumber + 1).ToString() + "</color><color=grey>]</color>";
-                text.fontSize = 1;
-                text.color = textColors[0];
-                text.supportRichText = true;
-                text.fontStyle = FontStyle.Italic;
-                text.alignment = TextAnchor.MiddleCenter;
-                text.resizeTextForBestFit = true;
-                text.resizeTextMinSize = 0;
-                RectTransform component = text.GetComponent<RectTransform>();
-                component.localPosition = Vector3.zero;
-                component.sizeDelta = new Vector2(0.28f, 0.05f);
-                component.position = new Vector3(0.06f, 0f, 0.165f);
-                component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }.AddComponent<Text>();
+            text.font = currentFont;
+            text.text = PluginInfo.Name + " <color=grey>[</color><color=white>" + (pageNumber + 1).ToString() + "</color><color=grey>]</color>";
+            text.fontSize = 1;
+            text.color = textColors[0];
+            text.supportRichText = true;
+            text.fontStyle = FontStyle.Italic;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 0;
+            RectTransform component = text.GetComponent<RectTransform>();
+            component.localPosition = Vector3.zero;
+            component.sizeDelta = new Vector2(0.28f, 0.05f);
+            component.position = new Vector3(0.06f, 0f, 0.165f);
+            component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
 
-                if (fpsCounter)
+            if (fpsCounter)
+            {
+                fpsObject = new GameObject
                 {
-                    fpsObject = new GameObject
-                    {
-                        transform =
+                    transform =
                         {
                             parent = canvasObject.transform
                         }
-                    }.AddComponent<Text>();
-                    fpsObject.font = currentFont;
-                    fpsObject.text = "FPS: " + Mathf.Ceil(1f / Time.unscaledDeltaTime).ToString();
-                    fpsObject.color = textColors[0];
-                    fpsObject.fontSize = 1;
-                    fpsObject.supportRichText = true;
-                    fpsObject.fontStyle = FontStyle.Italic;
-                    fpsObject.alignment = TextAnchor.MiddleCenter;
-                    fpsObject.horizontalOverflow = HorizontalWrapMode.Overflow;
-                    fpsObject.resizeTextForBestFit = true;
-                    fpsObject.resizeTextMinSize = 0;
-                    RectTransform component2 = fpsObject.GetComponent<RectTransform>();
-                    component2.localPosition = Vector3.zero;
-                    component2.sizeDelta = new Vector2(0.28f, 0.02f);
-                    component2.position = new Vector3(0.06f, 0f, 0.135f);
-                    component2.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
-                }
+                }.AddComponent<Text>();
+                fpsObject.font = currentFont;
+                fpsObject.text = "FPS: " + Mathf.Ceil(1f / Time.unscaledDeltaTime).ToString();
+                fpsObject.color = textColors[0];
+                fpsObject.fontSize = 1;
+                fpsObject.supportRichText = true;
+                fpsObject.fontStyle = FontStyle.Italic;
+                fpsObject.alignment = TextAnchor.MiddleCenter;
+                fpsObject.horizontalOverflow = HorizontalWrapMode.Overflow;
+                fpsObject.resizeTextForBestFit = true;
+                fpsObject.resizeTextMinSize = 0;
+                RectTransform component2 = fpsObject.GetComponent<RectTransform>();
+                component2.localPosition = Vector3.zero;
+                component2.sizeDelta = new Vector2(0.28f, 0.02f);
+                component2.position = new Vector3(0.06f, 0f, 0.135f);
+                component2.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }
 
             // Buttons
-                // Disconnect
-                    if (disconnectButton)
-                    {
-                        GameObject disconnectbutton = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        if (!UnityInput.Current.GetKey(keyboardButton))
-                            disconnectbutton.layer = 2;
-                        Destroy(disconnectbutton.GetComponent<Rigidbody>());
-                        disconnectbutton.GetComponent<BoxCollider>().isTrigger = true;
-                        disconnectbutton.transform.parent = menu.transform;
-                        disconnectbutton.transform.rotation = Quaternion.identity;
-                        disconnectbutton.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
-                        disconnectbutton.transform.localPosition = new Vector3(0.56f, 0f, 0.6f);
-                        disconnectbutton.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
-                        disconnectbutton.AddComponent<Classes.Button>().relatedText = "Disconnect";
+            // Disconnect
+            if (disconnectButton)
+            {
+                GameObject disconnectbutton = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                if (!UnityInput.Current.GetKey(keyboardButton))
+                    disconnectbutton.layer = 2;
+                Destroy(disconnectbutton.GetComponent<Rigidbody>());
+                disconnectbutton.GetComponent<BoxCollider>().isTrigger = true;
+                disconnectbutton.transform.parent = menu.transform;
+                disconnectbutton.transform.rotation = Quaternion.identity;
+                disconnectbutton.transform.localScale = new Vector3(0.09f, 0.9f, 0.08f);
+                disconnectbutton.transform.localPosition = new Vector3(0.56f, 0f, 0.6f);
+                disconnectbutton.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
+                disconnectbutton.AddComponent<Classes.Button>().relatedText = "Disconnect";
 
-                        colorChanger = disconnectbutton.AddComponent<ColorChanger>();
-                        colorChanger.colors = buttonColors[0];
+                colorChanger = disconnectbutton.AddComponent<ColorChanger>();
+                colorChanger.colors = buttonColors[0];
 
-                        Text discontext = new GameObject
-                        {
-                            transform =
+                Text discontext = new GameObject
+                {
+                    transform =
                             {
                                 parent = canvasObject.transform
                             }
-                        }.AddComponent<Text>();
-                        discontext.text = "Disconnect";
-                        discontext.font = currentFont;
-                        discontext.fontSize = 1;
-                        discontext.color = textColors[0];
-                        discontext.alignment = TextAnchor.MiddleCenter;
-                        discontext.resizeTextForBestFit = true;
-                        discontext.resizeTextMinSize = 0;
+                }.AddComponent<Text>();
+                discontext.text = "Disconnect";
+                discontext.font = currentFont;
+                discontext.fontSize = 1;
+                discontext.color = textColors[0];
+                discontext.alignment = TextAnchor.MiddleCenter;
+                discontext.resizeTextForBestFit = true;
+                discontext.resizeTextMinSize = 0;
 
-                        RectTransform rectt = discontext.GetComponent<RectTransform>();
-                        rectt.localPosition = Vector3.zero;
-                        rectt.sizeDelta = new Vector2(0.2f, 0.03f);
-                        rectt.localPosition = new Vector3(0.064f, 0f, 0.23f);
-                        rectt.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
-                    }
+                RectTransform rectt = discontext.GetComponent<RectTransform>();
+                rectt.localPosition = Vector3.zero;
+                rectt.sizeDelta = new Vector2(0.2f, 0.03f);
+                rectt.localPosition = new Vector3(0.064f, 0f, 0.23f);
+                rectt.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }
 
-                // Page Buttons
-                    GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    if (!UnityInput.Current.GetKey(keyboardButton))
-                        gameObject.layer = 2;
-                    Destroy(gameObject.GetComponent<Rigidbody>());
-                    gameObject.GetComponent<BoxCollider>().isTrigger = true;
-                    gameObject.transform.parent = menu.transform;
-                    gameObject.transform.rotation = Quaternion.identity;
-                    gameObject.transform.localScale = new Vector3(0.09f, 0.2f, 0.9f);
-                    gameObject.transform.localPosition = new Vector3(0.56f, 0.65f, 0);
-                    gameObject.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
-                    gameObject.AddComponent<Classes.Button>().relatedText = "PreviousPage";
+            // Page Buttons
+            GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            if (!UnityInput.Current.GetKey(keyboardButton))
+                gameObject.layer = 2;
+            Destroy(gameObject.GetComponent<Rigidbody>());
+            gameObject.GetComponent<BoxCollider>().isTrigger = true;
+            gameObject.transform.parent = menu.transform;
+            gameObject.transform.rotation = Quaternion.identity;
+            gameObject.transform.localScale = new Vector3(0.09f, 0.2f, 0.9f);
+            gameObject.transform.localPosition = new Vector3(0.56f, 0.65f, 0);
+            gameObject.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
+            gameObject.AddComponent<Classes.Button>().relatedText = "PreviousPage";
 
-                    colorChanger = gameObject.AddComponent<ColorChanger>();
-                    colorChanger.colors = buttonColors[0];
+            colorChanger = gameObject.AddComponent<ColorChanger>();
+            colorChanger.colors = buttonColors[0];
 
-                    text = new GameObject
-                    {
-                        transform =
+            text = new GameObject
+            {
+                transform =
                         {
                             parent = canvasObject.transform
                         }
-                    }.AddComponent<Text>();
-                    text.font = currentFont;
-                    text.text = "<";
-                    text.fontSize = 1;
-                    text.color = textColors[0];
-                    text.alignment = TextAnchor.MiddleCenter;
-                    text.resizeTextForBestFit = true;
-                    text.resizeTextMinSize = 0;
-                    component = text.GetComponent<RectTransform>();
-                    component.localPosition = Vector3.zero;
-                    component.sizeDelta = new Vector2(0.2f, 0.03f);
-                    component.localPosition = new Vector3(0.064f, 0.195f, 0f);
-                    component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }.AddComponent<Text>();
+            text.font = currentFont;
+            text.text = "<";
+            text.fontSize = 1;
+            text.color = textColors[0];
+            text.alignment = TextAnchor.MiddleCenter;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 0;
+            component = text.GetComponent<RectTransform>();
+            component.localPosition = Vector3.zero;
+            component.sizeDelta = new Vector2(0.2f, 0.03f);
+            component.localPosition = new Vector3(0.064f, 0.195f, 0f);
+            component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
 
-                    gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    if (!UnityInput.Current.GetKey(keyboardButton))
-                    {
-                        gameObject.layer = 2;
-                    }
-                    Destroy(gameObject.GetComponent<Rigidbody>());
-                    gameObject.GetComponent<BoxCollider>().isTrigger = true;
-                    gameObject.transform.parent = menu.transform;
-                    gameObject.transform.rotation = Quaternion.identity;
-                    gameObject.transform.localScale = new Vector3(0.09f, 0.2f, 0.9f);
-                    gameObject.transform.localPosition = new Vector3(0.56f, -0.65f, 0);
-                    gameObject.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
-                    gameObject.AddComponent<Classes.Button>().relatedText = "NextPage";
+            gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            if (!UnityInput.Current.GetKey(keyboardButton))
+            {
+                gameObject.layer = 2;
+            }
+            Destroy(gameObject.GetComponent<Rigidbody>());
+            gameObject.GetComponent<BoxCollider>().isTrigger = true;
+            gameObject.transform.parent = menu.transform;
+            gameObject.transform.rotation = Quaternion.identity;
+            gameObject.transform.localScale = new Vector3(0.09f, 0.2f, 0.9f);
+            gameObject.transform.localPosition = new Vector3(0.56f, -0.65f, 0);
+            gameObject.GetComponent<Renderer>().material.color = buttonColors[0].colors[0].color;
+            gameObject.AddComponent<Classes.Button>().relatedText = "NextPage";
 
-                    colorChanger = gameObject.AddComponent<ColorChanger>();
-                    colorChanger.colors = buttonColors[0];
+            colorChanger = gameObject.AddComponent<ColorChanger>();
+            colorChanger.colors = buttonColors[0];
 
-                    text = new GameObject
-                    {
-                        transform =
+            text = new GameObject
+            {
+                transform =
                         {
                             parent = canvasObject.transform
                         }
-                    }.AddComponent<Text>();
-                    text.font = currentFont;
-                    text.text = ">";
-                    text.fontSize = 1;
-                    text.color = textColors[0];
-                    text.alignment = TextAnchor.MiddleCenter;
-                    text.resizeTextForBestFit = true;
-                    text.resizeTextMinSize = 0;
-                    component = text.GetComponent<RectTransform>();
-                    component.localPosition = Vector3.zero;
-                    component.sizeDelta = new Vector2(0.2f, 0.03f);
-                    component.localPosition = new Vector3(0.064f, -0.195f, 0f);
-                    component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
+            }.AddComponent<Text>();
+            text.font = currentFont;
+            text.text = ">";
+            text.fontSize = 1;
+            text.color = textColors[0];
+            text.alignment = TextAnchor.MiddleCenter;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 0;
+            component = text.GetComponent<RectTransform>();
+            component.localPosition = Vector3.zero;
+            component.sizeDelta = new Vector2(0.2f, 0.03f);
+            component.localPosition = new Vector3(0.064f, -0.195f, 0f);
+            component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
 
-                // Mod Buttons
-                    ButtonInfo[] activeButtons = buttons[currentCategory].Skip(pageNumber * buttonsPerPage).Take(buttonsPerPage).ToArray();
-                    for (int i = 0; i < activeButtons.Length; i++)
-                        CreateButton(i * 0.1f, activeButtons[i]);
+            // Mod Buttons
+            ButtonInfo[] activeButtons = buttons[currentCategory].Skip(pageNumber * buttonsPerPage).Take(buttonsPerPage).ToArray();
+            for (int i = 0; i < activeButtons.Length; i++)
+                CreateButton(i * 0.1f, activeButtons[i]);
         }
 
         public static void CreateButton(float offset, ButtonInfo method)
@@ -309,7 +334,7 @@ namespace StupidTemplate.Menu
             GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(keyboardButton))
                 gameObject.layer = 2;
-            
+
             Destroy(gameObject.GetComponent<Rigidbody>());
             gameObject.GetComponent<BoxCollider>().isTrigger = true;
             gameObject.transform.parent = menu.transform;
@@ -333,7 +358,7 @@ namespace StupidTemplate.Menu
 
             if (method.overlapText != null)
                 text.text = method.overlapText;
-            
+
             text.supportRichText = true;
             text.fontSize = 1;
             text.color = method.enabled ? textColors[1] : textColors[0];
@@ -412,7 +437,7 @@ namespace StupidTemplate.Menu
                                 Classes.Button collide = hit.transform.gameObject.GetComponent<Classes.Button>();
                                 collide?.OnTriggerEnter(buttonCollider);
                             }
-                        } 
+                        }
                         else
                             reference.transform.position = new Vector3(999f, -999f, -999f);
                     }
@@ -441,14 +466,16 @@ namespace StupidTemplate.Menu
                 pageNumber--;
                 if (pageNumber < 0)
                     pageNumber = lastPage;
-            } else
+            }
+            else
             {
                 if (buttonText == "NextPage")
                 {
                     pageNumber++;
                     if (pageNumber > lastPage)
                         pageNumber = 0;
-                } else
+                }
+                else
                 {
                     ButtonInfo target = GetIndex(buttonText);
                     if (target != null)
@@ -675,7 +702,7 @@ namespace StupidTemplate.Menu
         // Important
         // Objects
         public static GameObject menu;
-        public static GameObject menuBackground;   
+        public static GameObject menuBackground;
         public static GameObject reference;
         public static GameObject canvasObject;
 

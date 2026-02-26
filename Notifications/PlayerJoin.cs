@@ -13,7 +13,7 @@ namespace StupidTemplate.Patches
         {
             if (newPlayer != oldnewplayer)
             {
-                NotifiLib.SendNotification("<color=grey>[</color><color=green>Join</color><color=grey>] </color><color=white>Name: " + newPlayer.NickName + "</color>");
+                NotifiLib.SendNotification("<color=grey>[</color><color=green>JOIN</color><color=grey>] </color><color=white>Name: " + newPlayer.NickName + "</color>");
                 oldnewplayer = newPlayer;
             }
         }
